@@ -141,6 +141,7 @@ def main(args):
             tic = time.time()
             nodes_num = 0
             batch_len = len(loader_train)
+            test_res_per_epoch = []
 #                 att_in = []
 #                 att_out = []
             fa = []
@@ -177,6 +178,7 @@ def main(args):
                 val_results, test_results = evaluate_light(model, g, loader_val, loader_test, sens_selector,in_sentences, 
                                                             out_sentences, device)
                 results_str = ""
+                test_res_per_epoch.append([epoch, test_results])
                 for item, value in test_results.items():
                     results_str += item
                     results_str += ':'
@@ -207,7 +209,12 @@ def main(args):
                             'Best_F1_std':best.std(0)[2].item(), 
                             'Best_AUC_std':best.std(0)[3].item()}
     print(best_all)
-        
+    return {
+        'best': best,
+        'best_all': best_all,
+        'test_res_per_epoch': test_res_per_epoch
+    } 
+
         
 if __name__ == '__main__':
     needed_dirs = ['./results', './embs', './model', './profilers', './temp']

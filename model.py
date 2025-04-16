@@ -100,7 +100,7 @@ class Binary_Classifier(nn.Module):
         if self.emb_first:
 #             in_pack, lens_in = pad_packed_sequence(in_pack)
 #             out_pack, lens_out = pad_packed_sequence(out_pack)
-            in_pack = self.lstm_emb_in(in_pack)
+            in_pack = self.lstm_emb_in(in_pack)   
             in_pack = self.lstm_emb_norm_in(in_pack)
             out_pack = self.lstm_emb_out(out_pack)
             out_pack = self.lstm_emb_norm_out(out_pack)

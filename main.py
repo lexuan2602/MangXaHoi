@@ -212,7 +212,9 @@ def main(args):
     return {
         'best': best,
         'best_all': best_all,
-        'test_res_per_epoch': test_res_per_epoch
+        'test_res_per_epoch': test_res_per_epoch,
+        'attention': fa,
+        'param': params
     } 
 
         

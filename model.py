@@ -168,7 +168,7 @@ class Binary_Classifier(nn.Module):
                 x = F.dropout(x, p=self.dropout, training=self.training)
         if self.out_channels != 1:
             x = F.log_softmax(x, dim=1)
-        return x, firsta
+        return x, firsta, edges_emb
     
     
     

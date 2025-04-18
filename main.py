@@ -153,7 +153,7 @@ def main(args):
                 in_pack = in_pack.to(device)
                 out_pack = out_pack.to(device)
                 f_t0 = time.time()
-                batch_pred, a = model( in_pack, out_pack, lens_in, lens_out, sub_graph)
+                batch_pred, a, edges_emb = model( in_pack, out_pack, lens_in, lens_out, sub_graph)
                 loss = loss_fcn(batch_pred[:batch_size], g_train.labels[subset][:batch_size].to(device))
                 optimizer.zero_grad()
                 loss.backward()
@@ -213,7 +213,8 @@ def main(args):
         'best': best,
         'best_all': best_all,
         'test_res_per_epoch': test_res_per_epoch,
-        'attention': fa,
+        'attention': a,
+        'vector_embedding': edges_emb,
         'param': params
     } 
 

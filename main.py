@@ -134,6 +134,8 @@ def main(args):
                 {'params': weight_params, 'lr': args.weight_lr}])
         scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer,
                         milestones=[10, 15], gamma=0.5)
+        
+        loss_per_epoch_arr = []
         for epoch in range(args.num_epochs):   
             model = model.to(device)
             model.train()
@@ -145,6 +147,7 @@ def main(args):
 #                 att_in = []
 #                 att_out = []
             fa = []
+            sum_epoch_loss = 0
             for loader_id, (sub_graph, subset,  batch_size) in enumerate(loader_train):
                 sub_graph = sub_graph.to(device)
                 in_pack, lens_in = sens_selector_train.select(subset, in_sentences_train, g_train.lens_in)
@@ -155,6 +158,7 @@ def main(args):
                 f_t0 = time.time()
                 batch_pred, a, edges_emb = model( in_pack, out_pack, lens_in, lens_out, sub_graph)
                 loss = loss_fcn(batch_pred[:batch_size], g_train.labels[subset][:batch_size].to(device))
+                label = g_train.labels[subset][:batch_size].to(device)
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
@@ -162,8 +166,14 @@ def main(args):
                 tic_step = time.time()
                 batch_loss += loss.item()
                 nodes_num += batch_size
+                sum_epoch_loss += loss.item()
                 print(f'Epoch {epoch} | Batch {loader_id+1}/{batch_len} | Loss {loss.item()} | Nodes {batch_size}:{len(subset)}')
                 fa.append(a)
+            
+            avg_epoch_loss = sum_epoch_loss / batch_len
+            
+            loss_per_epoch_arr.append([epoch, avg_epoch_loss]) 
+                
             # Log parameter weight
             fa = torch.cat(fa, 0)
             fa_mean = fa.mean(0).reshape(-1)
@@ -212,9 +222,11 @@ def main(args):
     return {
         'best': best,
         'best_all': best_all,
-        'test_res_per_epoch': test_res_per_epoch,
+        'loss_per_epoch': loss_per_epoch_arr,
         'attention': a,
         'vector_embedding': edges_emb,
+        'node_id': subset,
+        'label': label, 
         'param': params
     } 
 

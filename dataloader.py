@@ -138,7 +138,7 @@ def load_data(data_path='./data/2015', use_unlabeled = 'SEMI', scale='minmax', g
     n_nodes = len(labels) # refresh n_nodes
     all_id = np.arange(n_nodes)
     
-
+    
     data['labels'] = torch.tensor(labels, dtype = int)
 
     # Split data into train/val/test

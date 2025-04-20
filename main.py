@@ -158,7 +158,7 @@ def main(args):
                 f_t0 = time.time()
                 batch_pred, a, edges_emb = model( in_pack, out_pack, lens_in, lens_out, sub_graph)
                 loss = loss_fcn(batch_pred[:batch_size], g_train.labels[subset][:batch_size].to(device))
-                label = g_train.labels[subset][:batch_size].to(device)
+                label = g_train.labels[subset]
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
@@ -225,7 +225,7 @@ def main(args):
         'loss_per_epoch': loss_per_epoch_arr,
         'attention': a,
         'vector_embedding': edges_emb,
-        'node_id': subset,
+        'node_id': subset[:batch_size],
         'label': label, 
         'param': params
     } 

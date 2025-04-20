@@ -225,7 +225,7 @@ def main(args):
         'loss_per_epoch': loss_per_epoch_arr,
         'attention': a,
         'vector_embedding': edges_emb,
-        'node_id': subset[:batch_size],
+        'node_id': subset,
         'label': label, 
         'param': params
     } 

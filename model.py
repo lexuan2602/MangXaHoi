@@ -20,17 +20,17 @@ class Binary_Classifier(nn.Module):
         self.rnn = rnn
         self.concat_feature = concat_feature
         self.emb_first = emb_first
-        self.in_channels = in_channels
-        self.out_channels = out_channels
+        self.in_channels = in_channels  #8
+        self.out_channels = out_channels  #2
         self.encoder_layers = encoder_layers = num_layers
         self.decoder_layers = decoder_layers
         self.lstm_norm = lstm_norm
         self.gnn_norm = gnn_norm
         self.graph_op = graph_op
-        rnn_out_channels = int(hidden_channels/2)
+        rnn_out_channels = int(hidden_channels/2)   #128/2
         # Initialize LSTM part
         if emb_first:
-            self.lstm_emb_in = nn.Linear(rnn_in_channels, rnn_out_channels)
+            self.lstm_emb_in = nn.Linear(rnn_in_channels, rnn_out_channels)   # (8,64)         
             self.lstm_emb_out = nn.Linear(rnn_in_channels, rnn_out_channels)
             if self.lstm_norm == 'bn':
                 self.lstm_emb_norm_in =  nn.BatchNorm1d(rnn_out_channels)

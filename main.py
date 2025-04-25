@@ -148,6 +148,11 @@ def main(args):
 #                 att_out = []
             fa = []
             sum_epoch_loss = 0
+            nid_list = []
+            batchpred_list = []
+            attention_list = []
+            edges_emb_list = []
+            label_list = []
             for loader_id, (sub_graph, subset,  batch_size) in enumerate(loader_train):
                 sub_graph = sub_graph.to(device)
                 in_pack, lens_in = sens_selector_train.select(subset, in_sentences_train, g_train.lens_in)
@@ -158,7 +163,6 @@ def main(args):
                 f_t0 = time.time()
                 batch_pred, a, edges_emb = model( in_pack, out_pack, lens_in, lens_out, sub_graph)
                 loss = loss_fcn(batch_pred[:batch_size], g_train.labels[subset][:batch_size].to(device))
-                label = g_train.labels[subset]
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
@@ -169,9 +173,15 @@ def main(args):
                 sum_epoch_loss += loss.item()
                 print(f'Epoch {epoch} | Batch {loader_id+1}/{batch_len} | Loss {loss.item()} | Nodes {batch_size}:{len(subset)}')
                 fa.append(a)
+                
+                #Result for chart
+                nid_list.append(subset[:batch_size])
+                batchpred_list.append(batch_pred[:batch_size])
+                edges_emb_list.append(edges_emb[:batch_size])
+                edges_emb_list.append(a[:batch_size])
+                label_list.append(g_train.labels[subset][:batch_size].to(device))
             
             avg_epoch_loss = sum_epoch_loss / batch_len
-            
             loss_per_epoch_arr.append([epoch, avg_epoch_loss]) 
                 
             # Log parameter weight
@@ -223,10 +233,10 @@ def main(args):
         'best': best,
         'best_all': best_all,
         'loss_per_epoch': loss_per_epoch_arr,
-        'attention': a,
-        'vector_embedding': edges_emb,
-        'node_id': subset,
-        'label': label, 
+        'attention': attention_list,
+        'vector_embedding': edges_emb_list,
+        'node_id': nid_list,
+        'label': label_list, 
         'param': params
     } 
 

@@ -178,7 +178,7 @@ def main(args):
                 nid_list.append(subset[:batch_size])
                 batchpred_list.append(batch_pred[:batch_size])
                 edges_emb_list.append(edges_emb[:batch_size])
-                edges_emb_list.append(a[:batch_size])
+                attention_list.append(a[:batch_size])
                 label_list.append(g_train.labels[subset][:batch_size].to(device))
             
             avg_epoch_loss = sum_epoch_loss / batch_len

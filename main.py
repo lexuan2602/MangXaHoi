@@ -217,8 +217,8 @@ def main(args):
                     test_values = list(test_results.values())
                     for i, (item, value) in enumerate(best_test.items()):
                         best_test[item] = test_values[i]
-
         best.append(list(best_test.values()))
+        
     best = torch.as_tensor(best)
     best_all = {'Best_Precision_mean':best.mean(0)[0].item(), 
                             'Best_Recall_mean':best.mean(0)[1].item(), 
@@ -229,10 +229,44 @@ def main(args):
                             'Best_F1_std':best.std(0)[2].item(), 
                             'Best_AUC_std':best.std(0)[3].item()}
     print(best_all)
+    
+    
+    # #Calculate loss val
+    
+    g_val = subdata(g, g.val_mask, relabel_nodes = True)
+    g_val.num_nodes = len(g_val.labels)
+    in_sentences_val = in_sentences[g.val_mask]
+    out_sentences_val = out_sentences[g.val_mask]
+    sens_selector = PreSentences_light()
+    loss_per_epoch_val_arr = []
+    
+    for epoch in range(10):   
+        batch_len = len(loader_val)
+        sum_epoch_loss_val = 0
+        for loader_id, (sub_graph, subset,  batch_size) in enumerate(loader_val):
+          sub_graph = sub_graph.to(device)
+          in_pack, lens_in = sens_selector.select(subset, in_sentences_val, g_val.lens_in)
+          out_pack, lens_out = sens_selector.select(subset,  out_sentences_val, g_val.lens_out)
+          in_pack = in_pack.to(device)
+          out_pack = out_pack.to(device)
+          batch_pred, _ , _ = model( in_pack, out_pack, lens_in, lens_out, sub_graph)
+          loss = loss_fcn(batch_pred[:batch_size], g_val.labels[subset][:batch_size].to(device))
+          optimizer.zero_grad()
+          loss.backward()
+          optimizer.step()
+          scheduler.step()
+          sum_epoch_loss_val += loss.item()
+          
+    
+    avg_epoch_loss_val = sum_epoch_loss_val / batch_len
+    loss_per_epoch_val_arr.append([epoch, avg_epoch_loss_val])
+    
+    
     return {
         'best': best,
         'best_all': best_all,
         'loss_per_epoch': loss_per_epoch_arr,
+        'loss_per_epoch_val': loss_per_epoch_val_arr,
         'attention': attention_list,
         'vector_embedding': edges_emb_list,
         'node_id': nid_list,
